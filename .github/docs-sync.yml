@@ -1,0 +1,35 @@
+name: Sync README to Numalabs-docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+
+jobs:
+  sync-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sdk repository
+        uses: actions/checkout@v2
+
+      - name: Checkout Numalabs-docs repository
+        uses: actions/checkout@v2
+        with:
+          repository: 'Numalabs-labs/Numalabs-docs'
+          token: ${{ secrets.GH_TOKEN }}
+          path: 'Numalabs-docs'
+
+      - name: Copy README.md to Numalabs-docs
+        run: |
+          cp README.md Numalabs-docs/packages/sdk/README.md
+
+      - name: Commit and push if changed
+        working-directory: ./Numalabs-docs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add packages/sdk/README.md
+          git commit -m "Update README from sdk repository" || exit 0
+          git push
